@@ -1,6 +1,3 @@
----@meta _
-
-
 ---@class LuaWindow
 ---@field valid boolean @窗口引用是否仍有效
 ---@field id integer @窗口 ID
@@ -25,6 +22,7 @@
 ---@field visible boolean
 ---@field type integer @见 CONST.UIControl.TYPE
 ---@field mouseState integer @见 CONST.UIControl.MOUSE_STATE
+---@field parentId integer @父 ScrollView 控件 ID；0 表示直属窗口
 ---@field image integer|string|nil @图片控件返回图号，PNG 图片控件返回路径
 ---@field imageHover string|nil @仅 PNG 图片控件
 ---@field imagePress string|nil @仅 PNG 图片控件
@@ -34,6 +32,13 @@
 ---@field color integer|nil @仅 PNG 图片控件
 ---@field text string|nil @文本或输入框控件
 ---@field maxLength integer|nil @仅输入框控件
+---@field animeNo integer|nil @仅动画控件
+---@field revertPlay integer|nil @仅动画控件
+---@field scrollY integer|nil @仅 ScrollView；当前垂直滚动偏移
+---@field contentHeight integer|nil @仅 ScrollView；内容高度
+---@field maxScrollY integer|nil @仅 ScrollView；最大垂直滚动偏移
+---@field barWidth integer|nil @仅 ScrollView；滚动条宽度
+---@field scrollStep integer|nil @仅 ScrollView；最小滚动单位
 
 ---@class LuaEventHandle
 ---@field valid boolean @事件是否仍有效；false 表示已反注册
@@ -51,6 +56,7 @@ function LuaEventHandle:Unregister() end
 ---@alias LuaPacketData string|integer
 ---@alias LuaKeyPressCallback fun()
 ---@alias LuaSceneStateChangedCallback fun(sceneType: integer, sceneState: integer)
+---@alias LuaChatMessageCallback fun(text: string): integer|nil
 ---@alias LuaVkList integer|integer[]
 
 ---@class LuaWindowParam
@@ -70,7 +76,9 @@ function LuaEventHandle:Unregister() end
 ---@field width integer|nil @默认 0
 ---@field height integer|nil @默认 0
 ---@field visible boolean|nil @默认 true
----@field hitable boolean|nil @图片/PNG/输入框默认 true，文本默认 false
+---@field hitable boolean|nil @图片/PNG/动画/输入框默认 true，文本默认 false
+---@field parent LuaControl|nil @父 ScrollView；未填则直属窗口
+---@field parentId integer|nil @父 ScrollView 控件 ID；parent 优先
 ---@field onEvent LuaUIEvent|nil
 ---@field onClick LuaUIEvent|nil
 ---@field onPress LuaUIEvent|nil
@@ -102,6 +110,10 @@ function LuaEventHandle:Unregister() end
 ---@field imagePressRect LuaPngRect|nil
 ---@field color integer|nil @默认 0xffffffff
 
+---@class LuaAnimeParam: LuaControlBaseParam
+---@field animeNo integer|nil @动画编号
+---@field revert integer|nil @倒序播放：1，正序播放：0
+
 ---@class LuaTextParam: LuaControlBaseParam
 ---@field text string|nil @默认空字符串
 ---@field font integer|nil @默认 0
@@ -116,6 +128,12 @@ function LuaEventHandle:Unregister() end
 ---@field maxLength integer|nil @默认 287；<=0 或 >287 时重置为 287
 ---@field onChange LuaUITextEvent|nil
 ---@field onEnter LuaUITextEvent|nil
+
+---@class LuaScrollViewParam: LuaControlBaseParam
+---@field contentHeight integer|nil @默认 height；小于 height 时不显示滚动条
+---@field scrollY integer|nil @默认 0；自动限制到 0..maxScrollY，并按 scrollStep 对齐
+---@field barWidth integer|nil @默认 8；仅垂直滚动条
+---@field scrollStep integer|nil @默认 1；<=0 时重置为 1
 
 ---@class LuaControlSetParam
 ---@field name string|nil
@@ -137,6 +155,13 @@ function LuaEventHandle:Unregister() end
 ---@field font integer|nil
 ---@field fontType integer|nil @font 未填时使用
 ---@field maxLength integer|nil @仅输入框控件
+---@field animeNo integer|nil @仅动画控件；只接受数值型
+---@field revertPlay integer|nil @仅动画控件；非 0 时传给 UIElementData_2.revertPlay
+---@field revert integer|nil @revertPlay 别名，仅参数可用
+---@field scrollY integer|nil @仅 ScrollView；自动限制到 0..maxScrollY，并按 scrollStep 对齐
+---@field contentHeight integer|nil @仅 ScrollView
+---@field barWidth integer|nil @仅 ScrollView；<=0 时重置为 8
+---@field scrollStep integer|nil @仅 ScrollView；<=0 时重置为 1
 
 ---@class LuaDrawRectParam
 ---@field x integer|nil @默认 0
@@ -151,6 +176,10 @@ function LuaEventHandle:Unregister() end
 ---@return LuaControl|nil control
 function LuaWindow:AddImage(param) end
 
+---@param param LuaAnimeParam
+---@return LuaControl|nil control
+function LuaWindow:AddAnime(param) end
+
 ---@param param LuaPngImageParam
 ---@return LuaControl|nil control
 function LuaWindow:AddPngImage(param) end
@@ -162,6 +191,10 @@ function LuaWindow:AddText(param) end
 ---@param param LuaTextInputParam
 ---@return LuaControl|nil control
 function LuaWindow:AddTextInput(param) end
+
+---@param param LuaScrollViewParam
+---@return LuaControl|nil control
+function LuaWindow:AddScrollView(param) end
 
 ---@return boolean success
 function LuaWindow:Close() end
@@ -216,6 +249,10 @@ function WinMgr.Close(id) end
 ---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
 function WinMgr.OnSceneStateChanged(callback) end
 
+---@param callback LuaChatMessageCallback
+---@return LuaEventHandle handle @callback 返回 1 时拦截发送事件
+function WinMgr.OnChatMessage(callback) end
+
 ---@param header string
 ---@param callback LuaPacketRecvCallback
 ---@return LuaEventHandle handle
@@ -247,6 +284,11 @@ function WinMgr.SendPacket(fullPacket) end
 ---@param ... LuaPacketData @按空格拼接；integer 使用 62 进制编码，string 使用 nrproto 字符串转义；末尾自动补 \n
 ---@return integer result
 function WinMgr.SendPacket(head, ...) end
+
+---@param seNo integer @0..500
+---@param panX integer @默认 320
+---@return integer result @0 成功，-1 失败
+function WinMgr.PlaySe(seNo, panX) end
 
 ---@param msg string
 function WinMgr.CliSendMsg(msg) end

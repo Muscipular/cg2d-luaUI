@@ -38,6 +38,7 @@
 ---@alias ModuleSceneStateChangedCallback fun(sceneType: integer, sceneState: integer)
 ---@alias ModulePacketRecvCallback fun(packetHeader: string, params: string[])
 ---@alias ModulePacketSendCallback fun(packetHeader: string, data: string, len: integer)
+---@alias ModuleChatMessageCallback fun(text: string): integer|nil
 ---@alias ModuleKeyPressCallback fun()
 
 ---@class GlobalEvent
@@ -231,6 +232,14 @@ function ModuleBase:onSceneStateChanged(callback) end
 ---@return LuaEventHandle handle
 function ModuleBase:OnSceneStateChanged(callback) end
 
+---@param callback ModuleChatMessageCallback
+---@return LuaEventHandle handle @callback 返回 1 时拦截发送事件
+function ModuleBase:onChatMessage(callback) end
+
+---@param callback ModuleChatMessageCallback
+---@return LuaEventHandle handle @callback 返回 1 时拦截发送事件
+function ModuleBase:OnChatMessage(callback) end
+
 ---@param header string
 ---@param callback ModulePacketRecvCallback
 ---@return LuaEventHandle handle
@@ -294,6 +303,16 @@ function ModuleBase:SendPacket(fullPacket) end
 ---@param ... LuaPacketData @按空格拼接；integer 使用 62 进制编码，string 使用 nrproto 字符串转义；末尾自动补 \n
 ---@return integer result
 function ModuleBase:SendPacket(head, ...) end
+
+---@param seNo integer @0..500
+---@param panX integer @默认 320
+---@return integer result @0 成功，-1 失败
+function ModuleBase:playSe(seNo, panX) end
+
+---@param seNo integer @0..500
+---@param panX integer @默认 320
+---@return integer result @0 成功，-1 失败
+function ModuleBase:PlaySe(seNo, panX) end
 
 ---@param msg string
 function ModuleBase:cliSendMsg(msg) end

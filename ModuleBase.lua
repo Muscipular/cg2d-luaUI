@@ -254,6 +254,14 @@ function ModuleBase:OnSceneStateChanged(callback)
     return self:onSceneStateChanged(callback)
 end
 
+function ModuleBase:onChatMessage(callback)
+    return self:ownEvent(winmgr_fn('OnChatMessage')(callback))
+end
+
+function ModuleBase:OnChatMessage(callback)
+    return self:onChatMessage(callback)
+end
+
 function ModuleBase:onPacketRecv(header, callback)
     return self:ownEvent(winmgr_fn('OnPacketRecv')(header, callback))
 end
@@ -284,6 +292,14 @@ end
 
 function ModuleBase:SendPacket(...)
     return self:sendPacket(...)
+end
+
+function ModuleBase:playSe(...)
+    return winmgr_fn('PlaySe')(...)
+end
+
+function ModuleBase:PlaySe(...)
+    return self:playSe(...)
 end
 
 function ModuleBase:cliSendMsg(...)
