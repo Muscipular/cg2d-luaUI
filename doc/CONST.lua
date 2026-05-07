@@ -45,11 +45,16 @@
 ---@field Width integer @动态屏幕宽度
 ---@field Height integer @动态屏幕高度
 
+---@class CONST_Mouse
+---@field x integer @当前鼠标 X 坐标
+---@field y integer @当前鼠标 Y 坐标
+
 ---@class CONST
 ---@field UIControl CONST_UIControl
 ---@field MouseFlags CONST_MouseFlags
 ---@field KeyStateFlag CONST_KeyStateFlag
 ---@field Screen CONST_Screen
+---@field Mouse CONST_Mouse
 ---@field VK CONST_VK
 
 ---@type CONST
@@ -96,6 +101,7 @@ CONST.KeyStateFlag = CONST.KeyStateFlag or {
 }
 
 CONST.Screen = CONST.Screen or {}
+CONST.Mouse = CONST.Mouse or {}
 
 CONST.VK = CONST.VK or {}
 

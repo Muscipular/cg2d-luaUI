@@ -36,6 +36,7 @@
 ---@alias ModuleCleanupCallback fun(module: ModuleBase)
 ---@alias ModuleDisposer fun(resource: any, module: ModuleBase)
 ---@alias ModuleSceneStateChangedCallback fun(sceneType: integer, sceneState: integer)
+---@alias ModuleWindowFocusChangedCallback fun(focusWinId: integer, blurWinId: integer)
 ---@alias ModulePacketRecvCallback fun(packetHeader: string, params: string[])
 ---@alias ModulePacketSendCallback fun(packetHeader: string, data: string, len: integer)
 ---@alias ModuleChatMessageCallback fun(text: string): integer|nil
@@ -203,11 +204,11 @@ function ModuleBase:newWindow(param) end
 function ModuleBase:NewWindow(param) end
 
 ---@param id integer
----@return LuaWindow|nil window
+---@return LuaWindow|NativeWindow|nil window
 function ModuleBase:findWindow(id) end
 
 ---@param id integer
----@return LuaWindow|nil window
+---@return LuaWindow|NativeWindow|nil window
 function ModuleBase:FindWindow(id) end
 
 ---@param id integer
@@ -231,6 +232,14 @@ function ModuleBase:onSceneStateChanged(callback) end
 ---@param callback ModuleSceneStateChangedCallback
 ---@return LuaEventHandle handle
 function ModuleBase:OnSceneStateChanged(callback) end
+
+---@param callback ModuleWindowFocusChangedCallback @-1 表示无焦点窗口
+---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
+function ModuleBase:onWindowFocusChanged(callback) end
+
+---@param callback ModuleWindowFocusChangedCallback @-1 表示无焦点窗口
+---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
+function ModuleBase:OnWindowFocusChanged(callback) end
 
 ---@param callback ModuleChatMessageCallback
 ---@return LuaEventHandle handle @callback 返回 1 时拦截发送事件

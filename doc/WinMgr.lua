@@ -9,6 +9,16 @@
 ---@field y integer
 ---@field width integer
 ---@field height integer
+---@field layer integer
+
+---@class NativeWindow
+---@field valid boolean @窗口是否仍存在
+---@field winId integer @窗口 ID
+---@field x integer
+---@field y integer
+---@field width integer
+---@field height integer
+---@field layer integer
 
 ---@class LuaControl
 ---@field valid boolean @控件引用是否仍有效
@@ -58,7 +68,7 @@ function LuaEventHandle:Unregister() end
 ---@alias LuaPacketData string|integer
 ---@alias LuaKeyPressCallback fun()
 ---@alias LuaSceneStateChangedCallback fun(sceneType: integer, sceneState: integer)
----@alias LuaChatMessageCallback fun(text: string): integer|nil
+
 ---@alias LuaVkList integer|integer[]
 
 ---@class LuaWindowParam
@@ -85,6 +95,7 @@ function LuaEventHandle:Unregister() end
 ---@field onClick LuaUIEvent|nil
 ---@field onPress LuaUIEvent|nil
 ---@field onHover LuaUIEvent|nil
+---@field onLeave LuaUIEvent|nil
 ---@field onDrag LuaUIEvent|nil
 ---@field onDrop LuaUIEvent|nil
 
@@ -241,7 +252,7 @@ WinMgr = WinMgr or {}
 function WinMgr.NewWindow(param) end
 
 ---@param id integer
----@return LuaWindow|nil window
+---@return LuaWindow|NativeWindow|nil window
 function WinMgr.FindWindow(id) end
 
 ---@param id integer
@@ -254,6 +265,10 @@ function WinMgr.Close(id) end
 ---@param callback LuaSceneStateChangedCallback
 ---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
 function WinMgr.OnSceneStateChanged(callback) end
+
+---@param callback fun(focusWinId: integer, blurWinId: integer) @-1 表示无焦点窗口
+---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
+function WinMgr.OnWindowFocusChanged(callback) end
 
 ---@param callback LuaChatMessageCallback
 ---@return LuaEventHandle handle @callback 返回 1 时拦截发送事件
