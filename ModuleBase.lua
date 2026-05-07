@@ -254,6 +254,14 @@ function ModuleBase:OnSceneStateChanged(callback)
     return self:onSceneStateChanged(callback)
 end
 
+function ModuleBase:onWindowFocusChanged(callback)
+    return self:ownEvent(winmgr_fn('OnWindowFocusChanged')(callback))
+end
+
+function ModuleBase:OnWindowFocusChanged(callback)
+    return self:onWindowFocusChanged(callback)
+end
+
 function ModuleBase:onChatMessage(callback)
     return self:ownEvent(winmgr_fn('OnChatMessage')(callback))
 end
