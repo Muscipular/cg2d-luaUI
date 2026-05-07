@@ -21,6 +21,41 @@ function DemoModule:_ensureNHandler()
     )
 end
 
+function DemoModule:showCombobox(x, y)
+    ---@type ComboxModule
+    local combox = self:getModule('combox')
+    if not combox then
+        return
+    end
+    print("showCombobox", x, y);
+
+    combox:OpenComboBox({
+        x = x,
+        y = y,
+        width = 120,
+        maxHeight = 80,
+        itemHeight = 20,
+        itemList = {
+            '选项1',
+            '选项2',
+            '选项3',
+            '选项4',
+            '选项5',
+            '选项6',
+            '选项7',
+            '选项8',
+        },
+        onSelectedCallback = function(item, index)
+            if index == -1 then
+                print('未选择')
+                return
+            end
+
+            print('选择:', index, item)
+        end,
+    })
+end
+
 function DemoModule:_openWindow()
     if self.win ~= nil and self.win.valid then
         return
@@ -67,6 +102,10 @@ function DemoModule:_openWindow()
         image = 'a.png',
         color = -1,
         visible = true,
+        onClick = function(control)
+            self:showCombobox(control.x + win.x, control.y + win.y)
+            return true;
+        end,
         onPress = function(control, flags)
             if win.valid then
                 win:ShowTips('Lua UI pngimage:onPress')

@@ -1,3 +1,4 @@
 ModuleSystem:loadModule('manage')
+ModuleSystem:loadModule('combox')
 ModuleSystem:loadModule('help_bar')
 ModuleSystem:loadModule('demo')

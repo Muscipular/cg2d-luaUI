@@ -1,3 +1,5 @@
+---@meta _
+
 ---@class LuaWindow
 ---@field valid boolean @窗口引用是否仍有效
 ---@field id integer @窗口 ID
