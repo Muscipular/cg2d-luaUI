@@ -14,29 +14,9 @@
     "Lua.runtime.unicodeName": true,
     "Lua.workspace.checkThirdParty": false,
     "Lua.diagnostics.globals": [
-        "Obj",
-        "ModuleBase",
-        "NL",
-        "NLG",
-        "Map",
-        "Battle",
-        "Char",
-        "Field",
-        "SQL",
-        "Tech",
-        "Data",
-        "Http",
-        "TechArea",
-        "Pet",
-        "Recipe",
-        "Protocol",
-        "Item",
-        "Skill",
-        "getModule"
     ],
     "Lua.workspace.ignoreDir": [
         ".vscode",
-        "libs/Gmsv"
     ],
     "Lua.type.weakUnionCheck": true,
     "Lua.type.weakNilCheck": true,
@@ -54,13 +34,7 @@
     "Lua.hover.previewFields": 30,
     "Lua.hover.expandAlias": false,
     "Lua.hint.semicolon": "Disable",
-    "Lua.runtime.plugin": ".vscode/Const.lua",
     "Lua.completion.showParams": true,
     "Lua.hint.setType": false,
     "editor.codeLens": false,
-    "files.autoGuessEncoding": true,
-    "files.candidateGuessEncodings": [
-        "utf8",
-        "gb2312"
-    ]
 }
