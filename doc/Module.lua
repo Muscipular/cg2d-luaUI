@@ -314,6 +314,24 @@ function ModuleBase:playSe(seNo, panX) end
 ---@return integer result @0 成功，-1 失败
 function ModuleBase:PlaySe(seNo, panX) end
 
+---@param bgmNo integer @bin\bgm\bgm.cf 第二列 BGM 号
+---@return integer result @1 成功，非 1 失败
+function ModuleBase:loadAndPlayBGM(bgmNo) end
+
+---@param bgmNo integer @bin\bgm\bgm.cf 第二列 BGM 号
+---@return integer result @1 成功，非 1 失败
+function ModuleBase:LoadAndPlayBGM(bgmNo) end
+
+---@param type integer @固定 BGM 类型：0 或 1
+---@param repeats integer @重复次数，传给原客户端
+---@return integer result @1 成功，非 1 失败
+function ModuleBase:playFixedBGM(type, repeats) end
+
+---@param type integer @固定 BGM 类型：0 或 1
+---@param repeats integer @重复次数，传给原客户端
+---@return integer result @1 成功，非 1 失败
+function ModuleBase:PlayFixedBGM(type, repeats) end
+
 ---@param msg string
 function ModuleBase:cliSendMsg(msg) end
 

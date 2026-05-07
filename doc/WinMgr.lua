@@ -33,6 +33,8 @@
 ---@field text string|nil @文本或输入框控件
 ---@field maxLength integer|nil @仅输入框控件
 ---@field animeNo integer|nil @仅动画控件
+---@field action integer|nil @仅动画控件
+---@field dir integer|nil @仅动画控件
 ---@field revertPlay integer|nil @仅动画控件
 ---@field scrollY integer|nil @仅 ScrollView；当前垂直滚动偏移
 ---@field contentHeight integer|nil @仅 ScrollView；内容高度
@@ -112,6 +114,8 @@ function LuaEventHandle:Unregister() end
 
 ---@class LuaAnimeParam: LuaControlBaseParam
 ---@field animeNo integer|nil @动画编号
+---@field action integer|nil @动画动作
+---@field dir integer|nil @动画方向
 ---@field revert integer|nil @倒序播放：1，正序播放：0
 
 ---@class LuaTextParam: LuaControlBaseParam
@@ -156,6 +160,8 @@ function LuaEventHandle:Unregister() end
 ---@field fontType integer|nil @font 未填时使用
 ---@field maxLength integer|nil @仅输入框控件
 ---@field animeNo integer|nil @仅动画控件；只接受数值型
+---@field action integer|nil @仅动画控件；只接受数值型，对应 YobiAction.actionState
+---@field dir integer|nil @仅动画控件；只接受数值型，对应 YobiAction.dir
 ---@field revertPlay integer|nil @仅动画控件；非 0 时传给 UIElementData_2.revertPlay
 ---@field revert integer|nil @revertPlay 别名，仅参数可用
 ---@field scrollY integer|nil @仅 ScrollView；自动限制到 0..maxScrollY，并按 scrollStep 对齐
@@ -289,6 +295,15 @@ function WinMgr.SendPacket(head, ...) end
 ---@param panX integer @默认 320
 ---@return integer result @0 成功，-1 失败
 function WinMgr.PlaySe(seNo, panX) end
+
+---@param bgmNo integer @bin\bgm\bgm.cf 第二列 BGM 号
+---@return integer result @1 成功，非 1 失败
+function WinMgr.LoadAndPlayBGM(bgmNo) end
+
+---@param type integer @固定 BGM 类型：0 或 1
+---@param repeats integer @重复次数，传给原客户端
+---@return integer result @1 成功，非 1 失败
+function WinMgr.PlayFixedBGM(type, repeats) end
 
 ---@param msg string
 function WinMgr.CliSendMsg(msg) end

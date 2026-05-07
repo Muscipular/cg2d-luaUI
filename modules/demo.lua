@@ -105,9 +105,15 @@ function DemoModule:_openWindow()
         color = -1,
         visible = true,
         onClick = function(control, flags)
+            self:playSe(55, 320);
+            self:loadAndPlayBGM(202)
             WinMgr.CliSendMsg(nameInput.text, 1, 1, '系统提示')
         end,
     })
+
+    local n = 0;
+    local dir = 0;
+    local action = 0;
 
     win:AddAnime({
         name = 'demoAnime',
@@ -117,12 +123,32 @@ function DemoModule:_openWindow()
         height = 48,
         animeNo = 105000,
         revertPlay = 0,
+        dir = 1,
+        action = 3,
         visible = true,
+        onClick = function(control)
+            n = n + 1;
+            if n > 1 then
+                n = 0
+            end
+            dir = dir + 1;
+            if dir > 7 then
+                dir = 0
+            end
+            action = action + 1;
+            if action > 8 then
+                action = 0
+            end
+            control:Set({ dir = dir, action = action, animeNo = 105000 + n });
+
+            self:playFixedBGM(n, 1)
+            print(n, dir, action, control.dir);
+        end,
         onHover = function(control, flags)
             if win.valid then
                 win:ShowTips('Lua UI demoAnime:onHover')
             end
-            return true
+            return false
         end,
     })
 

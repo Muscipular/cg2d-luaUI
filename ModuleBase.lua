@@ -302,6 +302,22 @@ function ModuleBase:PlaySe(...)
     return self:playSe(...)
 end
 
+function ModuleBase:loadAndPlayBGM(...)
+    return winmgr_fn('LoadAndPlayBGM')(...)
+end
+
+function ModuleBase:LoadAndPlayBGM(...)
+    return self:loadAndPlayBGM(...)
+end
+
+function ModuleBase:playFixedBGM(...)
+    return winmgr_fn('PlayFixedBGM')(...)
+end
+
+function ModuleBase:PlayFixedBGM(...)
+    return self:playFixedBGM(...)
+end
+
 function ModuleBase:cliSendMsg(...)
     return winmgr_fn('CliSendMsg')(...)
 end
