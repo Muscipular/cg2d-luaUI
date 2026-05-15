@@ -1,5 +1,3 @@
----@meta _
-
 ---@class LuaWindow
 ---@field valid boolean @窗口引用是否仍有效
 ---@field id integer @窗口 ID
@@ -264,6 +262,17 @@ function WinMgr.Focus(id) end
 ---@param id integer
 function WinMgr.Close(id) end
 
+---开始自动导航到地图坐标；会持续分段移动直到到达或调用 StopCopilot
+---@param x integer @目标地图 X
+---@param y integer @目标地图 Y
+function WinMgr.AutoCopilot(x, y) end
+
+---停止当前自动导航
+function WinMgr.StopCopilot() end
+---获取当前自动导航状态
+---@return integer state @1 导航中，0 未导航
+function WinMgr.GetAutoCopliotState() end
+
 ---@param callback LuaSceneStateChangedCallback
 ---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
 function WinMgr.OnSceneStateChanged(callback) end
@@ -271,6 +280,10 @@ function WinMgr.OnSceneStateChanged(callback) end
 ---@param callback fun(focusWinId: integer, blurWinId: integer) @-1 表示无焦点窗口
 ---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
 function WinMgr.OnWindowFocusChanged(callback) end
+
+---@param callback fun(winId: integer)
+---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
+function WinMgr.OnWindowClose(callback) end
 
 ---@param callback LuaChatMessageCallback
 ---@return LuaEventHandle handle @callback 返回 1 时拦截发送事件

@@ -37,6 +37,7 @@
 ---@alias ModuleDisposer fun(resource: any, module: ModuleBase)
 ---@alias ModuleSceneStateChangedCallback fun(sceneType: integer, sceneState: integer)
 ---@alias ModuleWindowFocusChangedCallback fun(focusWinId: integer, blurWinId: integer)
+---@alias ModuleWindowCloseCallback fun(winId: integer)
 ---@alias ModulePacketRecvCallback fun(packetHeader: string, params: string[])
 ---@alias ModulePacketSendCallback fun(packetHeader: string, data: string, len: integer)
 ---@alias ModuleChatMessageCallback fun(text: string): integer|nil
@@ -225,6 +226,30 @@ function ModuleBase:closeWindow(id) end
 ---@param id integer
 function ModuleBase:Close(id) end
 
+---开始自动导航到地图坐标；会持续分段移动直到到达或调用 StopCopilot
+---@param x integer @目标地图 X
+---@param y integer @目标地图 Y
+function ModuleBase:autoCopilot(x, y) end
+
+---开始自动导航到地图坐标；会持续分段移动直到到达或调用 StopCopilot
+---@param x integer @目标地图 X
+---@param y integer @目标地图 Y
+function ModuleBase:AutoCopilot(x, y) end
+
+---停止当前自动导航
+function ModuleBase:stopCopilot() end
+
+---停止当前自动导航
+function ModuleBase:StopCopilot() end
+
+---获取当前自动导航状态
+---@return integer state @1 导航中，0 未导航
+function ModuleBase:getAutoCopliotState() end
+
+---获取当前自动导航状态
+---@return integer state @1 导航中，0 未导航
+function ModuleBase:GetAutoCopliotState() end
+
 ---@param callback ModuleSceneStateChangedCallback
 ---@return LuaEventHandle handle
 function ModuleBase:onSceneStateChanged(callback) end
@@ -240,6 +265,14 @@ function ModuleBase:onWindowFocusChanged(callback) end
 ---@param callback ModuleWindowFocusChangedCallback @-1 表示无焦点窗口
 ---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
 function ModuleBase:OnWindowFocusChanged(callback) end
+
+---@param callback ModuleWindowCloseCallback
+---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
+function ModuleBase:onWindowClose(callback) end
+
+---@param callback ModuleWindowCloseCallback
+---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
+function ModuleBase:OnWindowClose(callback) end
 
 ---@param callback ModuleChatMessageCallback
 ---@return LuaEventHandle handle @callback 返回 1 时拦截发送事件

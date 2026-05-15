@@ -305,6 +305,19 @@ function DemoModule:_openWindow()
             font = 0,
             text = "第 " .. i .. " 行中文内容",
         })
+        win:AddMap({
+            mapX = 159,
+            mapY = 185,
+            width = 120,
+            height = 120,
+            x = 0,
+            y = 0,
+            onClick = function(c)
+                local mx = c.clickX
+                local my = c.clickY
+                print("map on click", mx, my)
+            end
+        })
     end
 end
 

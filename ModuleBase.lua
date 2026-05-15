@@ -246,6 +246,30 @@ function ModuleBase:Close(id)
     return self:closeWindow(id)
 end
 
+function ModuleBase:autoCopilot(x, y)
+    return winmgr_fn('AutoCopilot')(x, y)
+end
+
+function ModuleBase:AutoCopilot(x, y)
+    return self:autoCopilot(x, y)
+end
+
+function ModuleBase:stopCopilot()
+    return winmgr_fn('StopCopilot')()
+end
+
+function ModuleBase:StopCopilot()
+    return self:stopCopilot()
+end
+
+function ModuleBase:getAutoCopliotState()
+    return winmgr_fn('GetAutoCopliotState')()
+end
+
+function ModuleBase:GetAutoCopliotState()
+    return self:getAutoCopliotState()
+end
+
 function ModuleBase:onSceneStateChanged(callback)
     return self:ownEvent(winmgr_fn('OnSceneStateChanged')(callback))
 end
@@ -260,6 +284,14 @@ end
 
 function ModuleBase:OnWindowFocusChanged(callback)
     return self:onWindowFocusChanged(callback)
+end
+
+function ModuleBase:onWindowClose(callback)
+    return self:ownEvent(winmgr_fn('OnWindowClose')(callback))
+end
+
+function ModuleBase:OnWindowClose(callback)
+    return self:onWindowClose(callback)
 end
 
 function ModuleBase:onChatMessage(callback)
