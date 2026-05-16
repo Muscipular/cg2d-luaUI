@@ -6,6 +6,7 @@
 ---@field TEXT_INPUT integer @4
 ---@field ANIME integer @5
 ---@field SCROLL_VIEW integer @6
+---@field MAP integer @7
 
 ---@class CONST_UIControl_MOUSE_STATE
 ---@field NONE integer @0
@@ -69,6 +70,7 @@ CONST.UIControl.TYPE = CONST.UIControl.TYPE or {
     TEXT_INPUT = 4,
     ANIME = 5,
     SCROLL_VIEW = 6,
+    MAP = 7,
 }
 
 CONST.UIControl.MOUSE_STATE = CONST.UIControl.MOUSE_STATE or {

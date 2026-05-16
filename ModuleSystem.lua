@@ -137,6 +137,8 @@ local function make_env(system, name, opt)
         GlobalEvent = GlobalEvent,
         CONST = readonly_proxy(rawget(_G, 'CONST')),
         WinMgr = readonly_proxy(rawget(_G, 'WinMgr')),
+        Player = readonly_proxy(rawget(_G, 'Player')),
+        Graphic = readonly_proxy(rawget(_G, 'Graphic')),
     }
 
     if system and type(system.opt) == 'table' and type(system.opt.globals) == 'table' then

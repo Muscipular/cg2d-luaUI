@@ -32,6 +32,7 @@ luaUI/
     README.md
     CONST.lua
     WinMgr.lua
+    Global.lua
 ```
 
 ## Ä£¿é¹æ·¶

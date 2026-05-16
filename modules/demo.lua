@@ -6,6 +6,12 @@ local WIN_DEMO = 101
 function DemoModule:_sceneStateChanged(scene, state)
     print('WinMgr.OnSceneStateChanged')
     print(string.format('scene %d state %d', scene, state))
+    if scene ~= 9 then
+        if self.win and self.win.valid then
+            self:releaseWindow(self.win)
+            self.win = nil
+        end
+    end
 end
 
 function DemoModule:_ensureNHandler()
@@ -65,8 +71,8 @@ function DemoModule:_openWindow()
         id = WIN_DEMO,
         x = 0,
         y = 50,
-        width = 220,
-        height = 220,
+        width = 700,
+        height = 500,
         layer = 4,
         update = function(window)
             if not window.valid then
@@ -74,6 +80,9 @@ function DemoModule:_openWindow()
             end
             if self.win and self.win:CheckKeyState(0x4E, { 0x11, 0x10 }, 255) then
                 print('CTRL + SHIFT + N')
+            end
+            if self.map then
+                self.map:Set({ mapX = -1, mapY = -1, floor = -1, mapId = -1 });
             end
             return false
         end,
@@ -305,18 +314,20 @@ function DemoModule:_openWindow()
             font = 0,
             text = "第 " .. i .. " 行中文内容",
         })
-        win:AddMap({
-            mapX = 159,
-            mapY = 185,
-            width = 120,
-            height = 120,
+        self.map = win:AddMapEx({
+            -- mapX = 100,
+            -- mapY = 100,
+            width = 700,
+            height = 500,
             x = 0,
             y = 0,
             onClick = function(c)
                 local mx = c.clickX
                 local my = c.clickY
                 print("map on click", mx, my)
-            end
+                self:cliSendMsg(string.format("开始导航到 %d %d", mx, my))
+                self:AutoCopilot(mx, my);
+            end,
         })
     end
 end

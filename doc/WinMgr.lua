@@ -2,8 +2,8 @@
 ---@field valid boolean @窗口引用是否仍有效
 ---@field id integer @窗口 ID
 ---@field winId integer @窗口 ID，同 id
----@field generation integer @窗口代次
 ---@field state integer @窗口状态
+---@field visible boolean @窗口是否可见
 ---@field count integer @子控件数量
 ---@field x integer
 ---@field y integer
@@ -51,6 +51,18 @@
 ---@field maxScrollY integer|nil @仅 ScrollView；最大垂直滚动偏移
 ---@field barWidth integer|nil @仅 ScrollView；滚动条宽度
 ---@field scrollStep integer|nil @仅 ScrollView；最小滚动单位
+---@field mapX integer|nil @仅地图控件；中心地图 X
+---@field mapY integer|nil @仅地图控件；中心地图 Y
+---@field mapId integer|nil @仅地图控件；地图 ID
+---@field floor integer|nil @仅地图控件；楼层
+---@field mapWidth integer|nil @仅地图控件；已加载地图宽度
+---@field mapHeight integer|nil @仅地图控件；已加载地图高度
+---@field mouseX integer|nil @仅地图控件；当前鼠标所在地图 X
+---@field mouseY integer|nil @仅地图控件；当前鼠标所在地图 Y
+---@field clickX integer|nil @仅地图控件；最近一次点击地图 X
+---@field clickY integer|nil @仅地图控件；最近一次点击地图 Y
+---@field lastClickX integer|nil @clickX 别名
+---@field lastClickY integer|nil @clickY 别名
 
 ---@class LuaEventHandle
 ---@field valid boolean @事件是否仍有效；false 表示已反注册
@@ -78,6 +90,7 @@ function LuaEventHandle:Unregister() end
 ---@field width integer
 ---@field height integer
 ---@field layer integer|nil @仅新建窗口时生效，默认 4
+---@field visible boolean|nil @默认 true；false 时创建隐藏窗口
 ---@field update LuaWindowCallback|nil
 ---@field draw LuaWindowCallback|nil
 
@@ -87,7 +100,7 @@ function LuaEventHandle:Unregister() end
 ---@field y integer|nil @默认 0
 ---@field width integer|nil @默认 0
 ---@field height integer|nil @默认 0
----@field visible boolean|nil @默认 true
+---@field visible boolean|nil @默认 true；false 时不绘制、不响应 process
 ---@field hitable boolean|nil @图片/PNG/动画/输入框默认 true，文本默认 false
 ---@field parent LuaControl|nil @父 ScrollView；未填则直属窗口
 ---@field parentId integer|nil @父 ScrollView 控件 ID；parent 优先
@@ -150,13 +163,19 @@ function LuaEventHandle:Unregister() end
 ---@field barWidth integer|nil @默认 8；仅垂直滚动条
 ---@field scrollStep integer|nil @默认 1；<=0 时重置为 1
 
+---@class LuaMapParam: LuaControlBaseParam
+---@field mapX integer|nil @中心地图 X；未填或 -1 时使用角色当前地图 X
+---@field mapY integer|nil @中心地图 Y；未填或 -1 时使用角色当前地图 Y
+---@field mapId integer|nil @未填或 -1 时使用当前地图 ID
+---@field floor integer|nil @未填或 -1 时使用当前楼层
+
 ---@class LuaControlSetParam
 ---@field name string|nil
 ---@field x integer|nil
 ---@field y integer|nil
 ---@field width integer|nil
 ---@field height integer|nil
----@field visible boolean|nil
+---@field visible boolean|nil @false 时不绘制、不响应 process，并清理鼠标/输入状态
 ---@field hitable boolean|nil
 ---@field image integer|string|nil @图片控件为图号，PNG 图片控件为路径
 ---@field id integer|nil @图片控件 image 未填时使用
@@ -179,6 +198,19 @@ function LuaEventHandle:Unregister() end
 ---@field contentHeight integer|nil @仅 ScrollView
 ---@field barWidth integer|nil @仅 ScrollView；<=0 时重置为 8
 ---@field scrollStep integer|nil @仅 ScrollView；<=0 时重置为 1
+---@field mapX integer|nil @仅地图控件；未填保持原值；-1 时使用角色当前地图 X
+---@field mapY integer|nil @仅地图控件；未填保持原值；-1 时使用角色当前地图 Y
+---@field mapId integer|nil @仅地图控件；未填保持原值；-1 时使用当前地图 ID
+---@field floor integer|nil @仅地图控件；未填保持原值；-1 时使用当前楼层
+
+---@class LuaWindowSetParam
+---@field x integer|nil
+---@field y integer|nil
+---@field width integer|nil
+---@field height integer|nil
+---@field visible boolean|nil @false 时隐藏窗口并清理控件鼠标状态、拖动状态和输入框焦点
+---@field update LuaWindowCallback|nil
+---@field draw LuaWindowCallback|nil
 
 ---@class LuaDrawRectParam
 ---@field x integer|nil @默认 0
@@ -213,6 +245,14 @@ function LuaWindow:AddTextInput(param) end
 ---@return LuaControl|nil control
 function LuaWindow:AddScrollView(param) end
 
+---@param param LuaMapParam
+---@return LuaControl|nil control
+function LuaWindow:AddMap(param) end
+
+---@param param LuaWindowSetParam
+---@return boolean success
+function LuaWindow:Set(param) end
+
 ---@return boolean success
 function LuaWindow:Close() end
 
@@ -235,7 +275,7 @@ function LuaWindow:ClearChildren() end
 function LuaWindow:ShowTips(text) end
 
 ---@param param LuaDrawRectParam
----@return boolean success
+---@return boolean success @窗口隐藏时返回 false
 ---@return integer|nil index
 function LuaWindow:DrawRect(param) end
 
