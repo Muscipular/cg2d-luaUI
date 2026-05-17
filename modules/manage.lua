@@ -51,6 +51,7 @@ function ManageModule:_openWindow()
     local x = math.floor((CONST.Screen.Width - WINDOW_WIDTH) / 2)
     local y = math.floor((CONST.Screen.Height - WINDOW_HEIGHT) / 2)
     local status, win = self:newWindow({
+        dragMove = 1,
         id = WIN_MANAGE,
         x = x,
         y = y,

@@ -314,7 +314,7 @@ function DemoModule:_openWindow()
             font = 0,
             text = "第 " .. i .. " 行中文内容",
         })
-        self.map = win:AddMapEx({
+        self.map = win:AddMap({
             -- mapX = 100,
             -- mapY = 100,
             width = 700,
