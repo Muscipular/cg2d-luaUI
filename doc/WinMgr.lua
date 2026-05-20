@@ -10,6 +10,7 @@
 ---@field width integer
 ---@field height integer
 ---@field layer integer
+---@field dragMove integer @1 时允许窗口空白区域左键拖动
 
 ---@class NativeWindow
 ---@field valid boolean @窗口是否仍存在
@@ -91,6 +92,7 @@ function LuaEventHandle:Unregister() end
 ---@field height integer
 ---@field layer integer|nil @仅新建窗口时生效，默认 4
 ---@field visible boolean|nil @默认 true；false 时创建隐藏窗口
+---@field dragMove integer|nil @默认 0；1 时允许窗口空白区域左键拖动
 ---@field update LuaWindowCallback|nil
 ---@field draw LuaWindowCallback|nil
 
@@ -222,6 +224,7 @@ function LuaEventHandle:Unregister() end
 ---@field width integer|nil
 ---@field height integer|nil
 ---@field visible boolean|nil @false 时隐藏窗口并清理控件鼠标状态、拖动状态和输入框焦点
+---@field dragMove integer|nil @未填保持原值；1 时允许窗口空白区域左键拖动
 ---@field update LuaWindowCallback|nil
 ---@field draw LuaWindowCallback|nil
 
