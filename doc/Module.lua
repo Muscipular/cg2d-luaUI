@@ -250,6 +250,14 @@ function ModuleBase:getAutoCopliotState() end
 ---@return integer state @1 导航中，0 未导航
 function ModuleBase:GetAutoCopliotState() end
 
+---获取最近一次自动导航计算出的路线
+---@return LuaAutoCopliotRoutePoint[] route @未导航、目标越界或无法计算路线时返回空表
+function ModuleBase:getAutoCopliotRoute() end
+
+---获取最近一次自动导航计算出的路线
+---@return LuaAutoCopliotRoutePoint[] route @未导航、目标越界或无法计算路线时返回空表
+function ModuleBase:GetAutoCopliotRoute() end
+
 ---@param callback ModuleSceneStateChangedCallback
 ---@return LuaEventHandle handle
 function ModuleBase:onSceneStateChanged(callback) end

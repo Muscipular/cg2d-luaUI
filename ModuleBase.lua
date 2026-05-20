@@ -270,6 +270,14 @@ function ModuleBase:GetAutoCopliotState()
     return self:getAutoCopliotState()
 end
 
+function ModuleBase:getAutoCopliotRoute()
+    return winmgr_fn('GetAutoCopliotRoute')()
+end
+
+function ModuleBase:GetAutoCopliotRoute()
+    return self:getAutoCopliotRoute()
+end
+
 function ModuleBase:onSceneStateChanged(callback)
     return self:ownEvent(winmgr_fn('OnSceneStateChanged')(callback))
 end

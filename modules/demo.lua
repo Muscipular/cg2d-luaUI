@@ -83,6 +83,31 @@ function DemoModule:_openWindow()
             end
             if self.map then
                 self.map:Set({ mapX = -1, mapY = -1, floor = -1, mapId = -1 });
+                -- print(self.map, self.map.GetPoints);
+                for index, value in ipairs(self.map:GetPoints()) do
+                    self.map:RemovePoints(value.mapX, value.mapY);
+                end
+                self.map:AddPoint({
+                    mapX = Player.mapX,
+                    mapY = Player.mapY,
+                    type = 1, -- 圆点
+                    size = 2,
+                    color = { 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff },
+                });
+                if self:GetAutoCopliotState() == 1 then
+                    local route = self:GetAutoCopliotRoute();
+                    for key, value in ipairs(route) do
+                        if key % 3 == 0 then
+                            self.map:AddPoint({
+                                mapX = value.x,
+                                mapY = value.y,
+                                type = 0, -- 圆点
+                                size = 2,
+                                color = { 0xffff0000, },
+                            });
+                        end
+                    end
+                end
             end
             return false
         end,
@@ -328,6 +353,71 @@ function DemoModule:_openWindow()
                 self:cliSendMsg(string.format("开始导航到 %d %d", mx, my))
                 self:AutoCopilot(mx, my);
             end,
+        })
+        -- self.map:AddPoint({
+        --     mapX = 80,
+        --     mapY = 200,
+        --     type = 0, -- 圆点
+        --     size = 10,
+        --     color = { 0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000,0xffff0000, 0xffff0000, 0xffff0000, 0xffff0000, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff },
+        -- });
+        -- self.map:AddPoint({
+        --     mapX = 110,
+        --     mapY = 200,
+        --     type = 1, -- 圆点
+        --     size = 8,
+        --     color = { 0xffff0000, 0xff00ff00, 0xff0000ff,  },
+        -- });
+        -- self.map:AddPoint({
+        --     mapX = 120,
+        --     mapY = 200,
+        --     type = 2, -- 圆点
+        --     size = 2,
+        --     color = { 0xffff0000 },
+        -- });
+        -- self.map:AddPoint({
+        --     mapX = 130,
+        --     mapY = 200,
+        --     type = 3, -- 圆点
+        --     size = 2,
+        --     color = { 0xffff0000 },
+        -- });
+        -- self.map:AddPoint({
+        --     mapX = 140,
+        --     mapY = 200,
+        --     type = 4, -- 圆点
+        --     size = 2,
+        --     color = { 0xffff0000 },
+        -- });
+        local canvas = win:AddCanvas({
+            x = 0,
+            y = 0,
+            width = 360,
+            height = 260,
+            hitable = false,
+
+            shapes = {
+                -- 场景：分隔线 / 指示线
+                { type = "line",         x1 = 20,                                    y1 = 20,            x2 = 160,      y2 = 20,            color = 0xffffffff, thickness = 2 },
+
+                -- 场景：状态条背景 / 色块填充
+                { type = "rect",         x = 20,                                     y = 40,             width = 120,   height = 28,        color = 0x8800ff00 },
+
+                -- 场景：选中框 / 提示边框
+                { type = "rectBorder",   x = 160,                                    y = 40,             width = 120,   height = 28,        color = 0xffffff00, thickness = 2 },
+
+                -- 场景：地图点位 / 标记点
+                { type = "circle",       x = 60,                                     y = 110,            radius = 18,   color = 0x88ff0000, segments = 16 },
+
+                -- 场景：范围圈 / 技能半径提示
+                { type = "circleBorder", x = 140,                                    y = 110,            radius = 28,   color = 0xff00ffff, thickness = 2,      segments = 32 },
+
+                -- 场景：简单闭合区域 / 多边形高亮
+                { type = "path",         d = "M220 80 L280 100 L250 150 L200 130 Z", color = 0x880000ff, segments = 16 },
+
+                -- 场景：路线 / 曲线路径提示
+                { type = "pathBorder",   d = "M30 200 C90 160 150 240 220 200",      color = 0xffff00ff, thickness = 3, segments = 16 },
+            }
         })
     end
 end

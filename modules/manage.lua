@@ -5,6 +5,11 @@ local WIN_MANAGE = 1000
 local WINDOW_WIDTH = 240
 local WINDOW_HEIGHT = 110
 local COMMAND = '/moduleManage'
+local MODULE_COMMANDS = {
+    ['/load'] = { method = 'loadModule', text = 'º”‘ÿ' },
+    ['/reload'] = { method = 'reloadModule', text = '÷ÿ‘ÿ' },
+    ['/unload'] = { method = 'unloadModule', text = '–∂‘ÿ' },
+}
 
 local function trim(value)
     value = tostring(value or '')
@@ -23,8 +28,43 @@ function ManageModule:_run(action)
     if name == '' then
         return true
     end
-    action(name)
+    self:_runModuleAction(action, name)
     return true
+end
+
+function ManageModule:_runModuleAction(action, name)
+    local ok, result, err = pcall(function()
+        return self[action.method](self, name)
+    end)
+
+    if ok and result then
+        self:cliSendMsg(action.text .. '≥…π¶: ' .. name)
+        return true
+    end
+
+    local reason = ok and err or result
+    if reason then
+        self:cliSendMsg(action.text .. ' ß∞‹: ' .. name .. '£¨' .. tostring(reason))
+    else
+        self:cliSendMsg(action.text .. ' ß∞‹: ' .. name)
+    end
+    return false
+end
+
+function ManageModule:_runCommand(text)
+    local command, name = string.match(trim(text), '^(%S+)%s+(.+)$')
+    local action = MODULE_COMMANDS[command]
+    if not action then
+        return nil
+    end
+
+    name = trim(name)
+    if name == '' then
+        return 1
+    end
+
+    self:_runModuleAction(action, name)
+    return 1
 end
 
 function ManageModule:_addButton(win, name, x, text, onClick)
@@ -103,21 +143,15 @@ function ManageModule:_openWindow()
     })
 
     self:_addButton(win, 'load', 10, 'º”‘ÿ', function()
-        return self:_run(function(name)
-            self:loadModule(name)
-        end)
+        return self:_run(MODULE_COMMANDS['/load'])
     end)
 
     self:_addButton(win, 'reload', 60, '÷ÿ‘ÿ', function()
-        return self:_run(function(name)
-            self:reloadModule(name)
-        end)
+        return self:_run(MODULE_COMMANDS['/reload'])
     end)
 
     self:_addButton(win, 'unload', 110, '–∂‘ÿ', function()
-        return self:_run(function(name)
-            self:unloadModule(name)
-        end)
+        return self:_run(MODULE_COMMANDS['/unload'])
     end)
 
     self:_addButton(win, 'close', 160, 'πÿ±’¥∞ø⁄', function()
@@ -135,6 +169,10 @@ function ManageModule:onLoad()
     self.win = nil
     self.input = nil
     self:onChatMessage(function(text)
+        local result = self:_runCommand(text)
+        if result then
+            return result
+        end
         if text ~= COMMAND then
             return nil
         end

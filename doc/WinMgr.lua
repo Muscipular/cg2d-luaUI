@@ -169,6 +169,19 @@ function LuaEventHandle:Unregister() end
 ---@field mapId integer|nil @未填或 -1 时使用当前地图 ID
 ---@field floor integer|nil @未填或 -1 时使用当前楼层
 
+---@class LuaMapPointParam
+---@field mapX integer @地图 X
+---@field mapY integer @地图 Y
+---@field type integer @0 圆点，1 方形，2 三角形，3 倒三角
+---@field size integer|nil @默认 2，范围 1..16
+---@field color integer[]|nil @ARGB 颜色数组；渲染时按帧循环，默认 {0xffffffff}
+
+---@class LuaMapPoint: LuaMapPointParam
+
+---@class LuaAutoCopliotRoutePoint
+---@field x integer @地图 X
+---@field y integer @地图 Y
+
 ---@class LuaControlSetParam
 ---@field name string|nil
 ---@field x integer|nil
@@ -283,6 +296,19 @@ function LuaWindow:DrawRect(param) end
 ---@return boolean success
 function LuaControl:Set(param) end
 
+---@param param LuaMapPointParam
+---@return boolean success @仅地图控件成功
+---@return integer|nil index @新增点序号
+function LuaControl:AddPoint(param) end
+
+---@param mapX integer @地图 X
+---@param mapY integer @地图 Y
+---@return integer removed @删除的点数量；非地图控件或参数非法返回 0
+function LuaControl:RemovePoints(mapX, mapY) end
+
+---@return LuaMapPoint[] points @仅地图控件返回点列表拷贝，其他控件返回空表
+function LuaControl:GetPoints() end
+
 ---@class WinMgrModule
 WinMgr = WinMgr or {}
 
@@ -312,6 +338,10 @@ function WinMgr.StopCopilot() end
 ---获取当前自动导航状态
 ---@return integer state @1 导航中，0 未导航
 function WinMgr.GetAutoCopliotState() end
+
+---获取最近一次自动导航计算出的路线
+---@return LuaAutoCopliotRoutePoint[] route @未导航、目标越界或无法计算路线时返回空表
+function WinMgr.GetAutoCopliotRoute() end
 
 ---@param callback LuaSceneStateChangedCallback
 ---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
