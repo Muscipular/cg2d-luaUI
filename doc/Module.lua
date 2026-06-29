@@ -42,6 +42,7 @@
 ---@alias ModulePacketSendCallback fun(packetHeader: string, data: string, len: integer)
 ---@alias ModuleChatMessageCallback fun(text: string): integer|nil
 ---@alias ModuleKeyPressCallback fun()
+---@alias ModuleBridgeCallback fun(msgHead: string, ...: string|number)
 
 ---@class GlobalEvent
 ---@field STOP table @事件停止标记
@@ -155,11 +156,11 @@ function ModuleBase:defer(fn, name) end
 ---@return string|nil err
 function ModuleBase:own(resource, disposer, name) end
 
----@param handle LuaEventHandle|GlobalEventHandle|nil
----@return LuaEventHandle|GlobalEventHandle|nil handle
+---@param handle LuaEventHandle|LuaBridgeHandle|GlobalEventHandle|nil
+---@return LuaEventHandle|LuaBridgeHandle|GlobalEventHandle|nil handle
 function ModuleBase:ownEvent(handle) end
 
----@param handle LuaEventHandle|GlobalEventHandle|nil
+---@param handle LuaEventHandle|LuaBridgeHandle|GlobalEventHandle|nil
 ---@return boolean success
 function ModuleBase:unregisterHandle(handle) end
 
@@ -335,6 +336,28 @@ function ModuleBase:OnKeyPress(vkMain, stateMask, callback) end
 ---@param callback ModuleKeyPressCallback
 ---@return LuaEventHandle handle
 function ModuleBase:OnKeyPress(vkMain, vkList, stateMask, callback) end
+
+---注册 Bridge 消息回调；模块卸载时自动反注册
+---@param msgHead string @消息头
+---@param callback ModuleBridgeCallback @回调参数为 msgHead 和 sendBridge 传入的 string/number 参数
+---@return LuaBridgeHandle handle @调用 handle:Unregister() 反注册
+function ModuleBase:onBridge(msgHead, callback) end
+
+---注册 Bridge 消息回调；模块卸载时自动反注册
+---@param msgHead string @消息头
+---@param callback ModuleBridgeCallback @回调参数为 msgHead 和 sendBridge 传入的 string/number 参数
+---@return LuaBridgeHandle handle @调用 handle:Unregister() 反注册
+function ModuleBase:OnBridge(msgHead, callback) end
+
+---发送 Bridge 消息，只投递到另一侧 luaState，不触发本侧回调
+---@param msgHead string @消息头
+---@param ... string|number @仅支持 string 或 number
+function ModuleBase:sendBridge(msgHead, ...) end
+
+---发送 Bridge 消息，只投递到另一侧 luaState，不触发本侧回调
+---@param msgHead string @消息头
+---@param ... string|number @仅支持 string 或 number
+function ModuleBase:SendBridge(msgHead, ...) end
 
 ---@param fullPacket string @完整封包；未以 \n 结尾时自动补齐
 ---@return integer result

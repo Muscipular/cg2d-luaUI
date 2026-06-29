@@ -57,6 +57,7 @@
 ---@field Screen CONST_Screen
 ---@field Mouse CONST_Mouse
 ---@field VK CONST_VK
+---@field GameTick number @只读动态毫秒计时
 
 ---@type CONST
 CONST = CONST or {}

@@ -33,6 +33,7 @@ luaUI/
     CONST.lua
     WinMgr.lua
     Global.lua
+    Bridge.lua
 ```
 
 ## Ä£¿é¹æ·¶
@@ -117,6 +118,8 @@ self:onChatMessage(callback)
 self:onPacketRecv(header, callback)
 self:onPacketSend(header, callback)
 self:onKeyPress(...)
+self:onBridge(msgHead, callback)
+self:sendBridge(msgHead, ...)
 self:sendPacket(...)
 self:playSe(...)
 self:loadAndPlayBGM(bgmNo)

@@ -43,6 +43,15 @@ local function winmgr_fn(name)
     return fn
 end
 
+local function bridge_fn(name)
+    local api = rawget(_G, 'Bridge')
+    local fn = api and api[name]
+    if type(fn) ~= 'function' then
+        error('Bridge.' .. tostring(name) .. ' is unavailable', 3)
+    end
+    return fn
+end
+
 local function has_method(resource, method_name)
     if resource == nil then
         return false
@@ -332,6 +341,22 @@ end
 
 function ModuleBase:OnKeyPress(...)
     return self:onKeyPress(...)
+end
+
+function ModuleBase:onBridge(msgHead, callback)
+    return self:ownEvent(bridge_fn('On')(msgHead, callback))
+end
+
+function ModuleBase:OnBridge(msgHead, callback)
+    return self:onBridge(msgHead, callback)
+end
+
+function ModuleBase:sendBridge(msgHead, ...)
+    return bridge_fn('Send')(msgHead, ...)
+end
+
+function ModuleBase:SendBridge(msgHead, ...)
+    return self:sendBridge(msgHead, ...)
 end
 
 function ModuleBase:sendPacket(...)

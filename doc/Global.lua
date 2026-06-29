@@ -16,6 +16,61 @@
 ---@field flag integer @物品标记
 ---@field hasDesc boolean @是否有说明
 
+---@class LuaPlayerPetTech
+---@field use boolean @是否使用中
+---@field name string @技能名称
+---@field desc string @技能说明
+---@field fp integer @消耗 FP
+---@field techId integer @技能 ID
+---@field seqNo integer @序号
+---@field field integer @未知字段
+---@field target integer @目标标记
+---@field canUse boolean @战斗中是否可用
+---@field index integer @宠物技能索引
+
+---@class LuaPlayerPet
+---@field use boolean @是否使用中
+---@field lv integer @等级
+---@field name string @宠物名称
+---@field imageNo integer @图号
+---@field userPetName string @自定义宠物名
+---@field injury integer @受伤
+---@field exp integer @当前经验
+---@field nextExp integer @下级经验
+---@field petBattleState integer @战斗状态
+---@field hp integer @当前 HP
+---@field maxHp integer @最大 HP
+---@field fp integer @当前 FP
+---@field maxFp integer @最大 FP
+---@field loyalty integer @忠诚
+---@field seqNo integer @序号
+---@field tribe integer @种族
+---@field techList (LuaPlayerPetTech|nil)[] @宠物技能列表
+
+---@class LuaPlayerSkillTech
+---@field reqLv integer @需求等级
+---@field field integer @未知字段
+---@field name string @技能名称
+---@field use boolean @是否使用中
+---@field target integer @目标标记
+---@field desc string @技能说明
+---@field canUse boolean @战斗中是否可用
+---@field fp integer @消耗 FP
+
+---@class LuaPlayerSkill
+---@field lv integer @等级
+---@field name string @技能名称
+---@field exp integer @当前经验
+---@field nextExp integer @下级经验
+---@field seqNo integer @序号
+---@field maxLv integer @最大等级
+---@field skillId integer @技能 ID
+---@field fpReduce integer @FP 减免
+---@field reqSlot integer @需求技能格
+---@field index integer @技能索引
+---@field canUse boolean @战斗中是否可用
+---@field techList (LuaPlayerSkillTech|nil)[] @技能等级列表
+
 ---@class PlayerModule
 ---@field mapX integer @动态角色地图 X
 ---@field mapY integer @动态角色地图 Y
@@ -85,6 +140,8 @@
 ---@field items LuaPlayerItem[] @物品列表
 ---@field Items LuaPlayerItem[] @items 别名
 ---@field itemList LuaPlayerItem[] @items 别名
+---@field petList (LuaPlayerPet|nil)[] @宠物列表
+---@field skillList (LuaPlayerSkill|nil)[] @技能列表
 ---@field familyTitle2 string @家族称号 2
 ---@field crystal integer @水晶
 ---@field goldLimit integer @金币上限
@@ -116,3 +173,32 @@ Graphic = Graphic or {}
 ---@param mapNo integer @地图图号
 ---@return GraphicInfo|nil info @查不到时返回 nil
 function Graphic.GetGrahpicInfo(mapNo) end
+
+---@alias LuaFileYamlValue nil|boolean|number|string|table
+
+---@class FileModule
+File = File or {}
+
+---读取 data/luaUI 下的文件。fileName 仅允许英文字母、数字、点、下划线、减号。
+---@param fileName string
+---@return boolean success
+---@return string|nil text
+function File.read(fileName) end
+
+---覆盖写入 data/luaUI 下的文件，目录不存在时自动创建。
+---@param fileName string @仅允许英文字母、数字、点、下划线、减号
+---@param fileData string
+---@return boolean success
+function File.write(fileName, fileData) end
+
+---读取 data/luaUI 下的 yml 文件，根节点必须是 map 或 sequence。
+---@param fileName string @仅允许英文字母、数字、点、下划线、减号
+---@return boolean success
+---@return table|nil data
+function File.readYml(fileName) end
+
+---覆盖写入 data/luaUI 下的 yml 文件，支持 string/number/bool/nil/table 递归转换。
+---@param fileName string @仅允许英文字母、数字、点、下划线、减号
+---@param data table
+---@return boolean success
+function File.writeYml(fileName, data) end
