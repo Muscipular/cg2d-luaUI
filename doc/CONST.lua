@@ -1,3 +1,5 @@
+-- 此表是组件类别编号；当前 LuaControl.type 返回原生元素类型，不能直接与此表比较。
+-- 原生元素类型数值及区别见 README.md 的“类型编号”章节。
 ---@class CONST_UIControl_TYPE
 ---@field NONE integer @0
 ---@field IMAGE integer @1
@@ -7,6 +9,7 @@
 ---@field ANIME integer @5
 ---@field SCROLL_VIEW integer @6
 ---@field MAP integer @7
+---@field CANVAS integer @8
 
 ---@class CONST_UIControl_MOUSE_STATE
 ---@field NONE integer @0
@@ -26,6 +29,7 @@
 ---@field R_HOLD_PHYSICAL integer @0x10
 ---@field DRAGGING integer @0x20
 ---@field DRAG_FINISH integer @0x40
+---@field LEAVE integer @0x80
 ---@field L_DBL_CLICK_EVENT integer @0x100
 ---@field R_DBL_CLICK_EVENT integer @0x200
 ---@field L_REPEAT_DOWN integer @0x400
@@ -72,6 +76,7 @@ CONST.UIControl.TYPE = CONST.UIControl.TYPE or {
     ANIME = 5,
     SCROLL_VIEW = 6,
     MAP = 7,
+    CANVAS = 8,
 }
 
 CONST.UIControl.MOUSE_STATE = CONST.UIControl.MOUSE_STATE or {
@@ -89,6 +94,7 @@ CONST.MouseFlags = CONST.MouseFlags or {
     R_HOLD_PHYSICAL = 0x10,
     DRAGGING = 0x20,
     DRAG_FINISH = 0x40,
+    LEAVE = 0x80,
     L_DBL_CLICK_EVENT = 0x100,
     R_DBL_CLICK_EVENT = 0x200,
     L_REPEAT_DOWN = 0x400,

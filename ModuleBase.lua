@@ -303,6 +303,15 @@ function ModuleBase:OnWindowFocusChanged(callback)
     return self:onWindowFocusChanged(callback)
 end
 
+-- 订阅全部窗口的创建事件；沿用 ownEvent，在模块卸载时自动注销。
+function ModuleBase:onWindowOpen(callback)
+    return self:ownEvent(winmgr_fn('OnWindowOpen')(callback))
+end
+
+function ModuleBase:OnWindowOpen(callback)
+    return self:onWindowOpen(callback)
+end
+
 function ModuleBase:onWindowClose(callback)
     return self:ownEvent(winmgr_fn('OnWindowClose')(callback))
 end

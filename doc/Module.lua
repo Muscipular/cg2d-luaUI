@@ -37,6 +37,7 @@
 ---@alias ModuleDisposer fun(resource: any, module: ModuleBase)
 ---@alias ModuleSceneStateChangedCallback fun(sceneType: integer, sceneState: integer)
 ---@alias ModuleWindowFocusChangedCallback fun(focusWinId: integer, blurWinId: integer)
+---@alias ModuleWindowOpenCallback fun(winId: integer)
 ---@alias ModuleWindowCloseCallback fun(winId: integer)
 ---@alias ModulePacketRecvCallback fun(packetHeader: string, params: string[])
 ---@alias ModulePacketSendCallback fun(packetHeader: string, data: string, len: integer)
@@ -156,14 +157,16 @@ function ModuleBase:defer(fn, name) end
 ---@return string|nil err
 function ModuleBase:own(resource, disposer, name) end
 
----@param handle LuaEventHandle|LuaBridgeHandle|GlobalEventHandle|nil
----@return LuaEventHandle|LuaBridgeHandle|GlobalEventHandle|nil handle
+---接管带 Unregister 方法的订阅；模块卸载时自动注销。GlobalEventHandle 使用 defer 调用对应事件的 remove。
+---@param handle LuaEventHandle|LuaBridgeHandle|nil
+---@return LuaEventHandle|LuaBridgeHandle|nil handle
 function ModuleBase:ownEvent(handle) end
 
----@param handle LuaEventHandle|LuaBridgeHandle|GlobalEventHandle|nil
+---@param handle LuaEventHandle|LuaBridgeHandle|nil
 ---@return boolean success
 function ModuleBase:unregisterHandle(handle) end
 
+---显式接管窗口；卸载时关闭该 ID 当前对应的窗口，同 ID 重开仍会命中。
 ---@param window LuaWindow|nil
 ---@return LuaWindow|nil window
 function ModuleBase:ownWindow(window) end
@@ -196,7 +199,7 @@ function ModuleBase:unloadModule(name) end
 function ModuleBase:listModules() end
 
 ---@param param LuaWindowParam
----@return integer status @0 新建窗口，1 已存在并更新位置/尺寸/回调
+---@return integer status @0 新建，1 复用已有扩展窗口并更新所传属性；两者均由模块接管
 ---@return LuaWindow window
 function ModuleBase:newWindow(param) end
 
@@ -206,11 +209,11 @@ function ModuleBase:newWindow(param) end
 function ModuleBase:NewWindow(param) end
 
 ---@param id integer
----@return LuaWindow|NativeWindow|nil window
+---@return LuaWindow|nil window @原生、Lua及无绑定扩展窗口统一引用；查询不接管窗口
 function ModuleBase:findWindow(id) end
 
 ---@param id integer
----@return LuaWindow|NativeWindow|nil window
+---@return LuaWindow|nil window @同 findWindow
 function ModuleBase:FindWindow(id) end
 
 ---@param id integer
@@ -274,6 +277,15 @@ function ModuleBase:onWindowFocusChanged(callback) end
 ---@param callback ModuleWindowFocusChangedCallback @-1 表示无焦点窗口
 ---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
 function ModuleBase:OnWindowFocusChanged(callback) end
+
+---订阅原生及扩展窗口的创建事件，下一次 UI 更新派发；复用、置前或重新显示不触发。
+---@param callback ModuleWindowOpenCallback @参数仅为窗口 ID，使用 self:findWindow(winId) 取得统一窗口引用
+---@return LuaEventHandle handle @模块卸载自动注销；也可 self:unregisterHandle(handle)
+function ModuleBase:onWindowOpen(callback) end
+
+---@param callback ModuleWindowOpenCallback
+---@return LuaEventHandle handle @同 onWindowOpen
+function ModuleBase:OnWindowOpen(callback) end
 
 ---@param callback ModuleWindowCloseCallback
 ---@return LuaEventHandle handle @调用 handle:Unregister() 反注册
