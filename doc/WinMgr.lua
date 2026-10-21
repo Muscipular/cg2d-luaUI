@@ -1,4 +1,4 @@
--- 当前客户端 Lua UI 声明，2026-10-20；仅供说明和补全，不作为运行入口。
+-- 当前客户端 Lua UI 声明，2026-10-22；仅供说明和补全，不作为运行入口。
 -- LuaWindow/LuaControl 均为按 ID 临时解析的引用，GC 不关闭窗口或删除元素。
 -- 同窗口 ID 重开、同元素 ID 重建后，旧引用会重新命中新对象。
 -- 未知扩展属性仅支持 string / int32；不支持 nil、boolean、table、function 或 userdata。
@@ -57,6 +57,7 @@
 ---@field font integer|nil @文本/输入框字体 ID；找不到时使用 0 号字体
 ---@field fontType integer|nil @font 别名
 ---@field text string|nil @文本或输入框控件
+---@field align integer|nil @AddText文本框水平对齐：0左、1中、2右；可读写，原生锚点文本不支持设置
 ---@field maxLength integer|nil @仅输入框控件
 ---@field animeNo integer|nil @仅动画控件
 ---@field action integer|nil @仅动画控件
@@ -130,7 +131,7 @@ function LuaEventHandle:Unregister() end
 
 ---@class LuaControlBaseParam
 ---@field elementId LuaElementIdParam @不填/nil/0/空字符串自动从全局 10000 起分配；正整数显式指定，重复报错
----@field seqNo integer|nil @int32 排序主键；不填使用组件默认值；元素遍历中写入会报错
+---@field seqNo integer|nil @int32排序主键；默认当前窗口最小值减1，空窗口为0，后添加者在前；遍历中写入会报错
 ---@field name string|nil
 ---@field x integer|nil @默认 0
 ---@field y integer|nil @默认 0
@@ -205,6 +206,11 @@ function LuaEventHandle:Unregister() end
 ---@field revert integer|nil @倒序播放：1，正序播放：0
 
 ---@class LuaTextParam: LuaControlBaseParam
+---@field x integer|nil @文本框左上角X，默认0；相对窗口或父容器内容区
+---@field y integer|nil @文本框左上角Y，默认0；保持顶对齐
+---@field width integer|nil @文本框宽度，默认0；正数限制显示范围，0不增加该轴自身裁剪
+---@field height integer|nil @文本框高度，默认0；正数限制显示范围，0不增加该轴自身裁剪
+---@field align integer|nil @水平对齐：0左、1中、2右，默认0；width为0时按左对齐起点绘制
 ---@field text string|nil @默认空字符串
 ---@field font integer|nil @默认 0；使用 font.yml 字体 ID，找不到时回退 0
 ---@field fontType integer|nil @font 未填时使用
@@ -247,6 +253,7 @@ function LuaEventHandle:Unregister() end
 ---@field y integer @地图 Y
 
 ---@class LuaControlSetParam
+---@field align integer|nil @仅AddText文本框：0左、1中、2右；原生锚点文本设置时报错
 ---@field seqNo integer|nil @写入自动重排；元素遍历期间写 m_log 并报错，恢复原 seqNo
 ---@field name string|nil
 ---@field x integer|nil
@@ -331,6 +338,8 @@ function LuaWindow:AddPngImage(param) end
 ---@return LuaControl|nil control
 function LuaWindow:AddCanvas(param) end
 
+-- 创建、Set、直接赋值和读取使用相同文本框几何；尺寸变化不移动左上角。
+-- 裁剪与父容器相交，仅显示完整字形；不自动换行或添加省略号。文本默认hitable=false。
 ---@param param LuaTextParam
 ---@return LuaControl|nil control
 function LuaWindow:AddText(param) end

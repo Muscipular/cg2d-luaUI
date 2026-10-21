@@ -202,7 +202,7 @@ local sameTitle = window.elements[1001]
 - `window:FindElementById(id)` 与 `window.elements[id]` 均按 ID 查找；不是第几个元素。查询不会自动创建对象或 Lua 绑定。
 - `FindElementById(0/nil/空字符串)` 返回 nil；`RemoveElement` 对这些值返回 false，非法 ID 报错。
 - `window.count` 和 `#window.elements` 是全部有效元素数量，包含容器子孙。集合不是连续数组，不支持通过 pairs/ipairs 遍历；脚本需要自行保存所用 ID。
-- 绘制和鼠标处理按 `seqNo` 从小到大，同值按 `elementId` 排序。默认排序由组件创建逻辑设置；需要固定顺序时显式指定 int32 范围的 seqNo。
+- 绘制和鼠标处理按 `seqNo` 从小到大，同值按 `elementId` 排序。Lua新增元素默认取窗口内最小seqNo减1，空窗口为0，后添加者优先命中并位于同层前方；需要固定顺序时显式指定int32范围的seqNo。原生原型序号不变。
 - Lua 修改 `seqNo` 自动调用内部重排接口，无需也没有独立的 Lua `notifyUpdate()` 方法。元素遍历中修改会写 m_log 并报错，恢复原 seqNo；不能在元素的绘制、更新或鼠标回调内修改排序。
 - 回调中删除立即失效，新增元素下一轮才参与遍历；新增时若还指定 seqNo，同样受遍历中禁止重排的限制。
 
@@ -242,6 +242,10 @@ local canvas = window:AddCanvas({
 shapes 支持 line、rect、rectBorder、circle、circleBorder、path、pathBorder，坐标相对画布，颜色为 ARGB；通过 Set 整体替换形状列表，不提供 shapes 读取接口。参数详情见 `WinMgr.lua`。
 
 文本与输入框使用 `font`，兼容别名 `fontType`，对应 font.yml 的字体 ID；找不到时回退 0 号字体。字体与颜色在创建、Set 和直接赋值时均可传递。Lua 文本仍为 GBK 字符串，客户端内部宽字符串转换由接口处理。
+
+`AddText`使用文本框左上角`x/y`，`width/height`不再从坐标扣除；修改尺寸不移动左上角。`align`为水平对齐：0左、1中、2右，默认0，垂直方向顶对齐。创建、Set、直接赋值和读取含义一致，文本及字体变化后重新计算对齐。
+
+正数宽高限制该轴显示范围，并与父容器裁剪相交；尺寸省略或为0时不增加该轴自身裁剪，width为0时按左对齐起点绘制。仅显示完整字形，不自动换行或添加省略号。文本默认不命中；显式hitable=true时按声明的矩形命中，零尺寸不会自动扩成可点击区域。原生原型文本保留原锚点语义，取得Lua引用不会改变布局，对其设置align会报错。
 
 ## 类型编号
 
