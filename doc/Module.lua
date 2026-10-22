@@ -417,6 +417,20 @@ function ModuleBase:playFixedBGM(type, repeats) end
 ---@return integer result @1 成功，非 1 失败
 function ModuleBase:PlayFixedBGM(type, repeats) end
 
+---播放文件音乐并持有句柄，模块卸载时自动 Stop；失败不登记资源。
+---@param path string @luaUI/audio 内的 GBK 相对路径
+---@param options LuaBGMFileOptions @mode、loop 均必填；参数错误抛出 Lua 错误
+---@return LuaBGMHandle|nil handle @成功返回句柄；资源或设备失败返回 nil
+---@return string|nil err @失败说明；成功为 nil
+function ModuleBase:playBGMFile(path, options) end
+
+---playBGMFile 的同名接口别名，同样由模块管理句柄生命周期。
+---@param path string @luaUI/audio 内的 GBK 相对路径
+---@param options LuaBGMFileOptions
+---@return LuaBGMHandle|nil handle
+---@return string|nil err
+function ModuleBase:PlayBGMFile(path, options) end
+
 ---@param msg string
 function ModuleBase:cliSendMsg(msg) end
 

@@ -400,6 +400,21 @@ function ModuleBase:PlayFixedBGM(...)
     return self:playFixedBGM(...)
 end
 
+-- 持有文件音乐句柄，模块卸载时停止播放。
+function ModuleBase:playBGMFile(path, options)
+    local handle, err = winmgr_fn('PlayBGMFile')(path, options)
+    if handle then
+        self:own(handle, function(resource)
+            resource:Stop()
+        end, 'BGM')
+    end
+    return handle, err
+end
+
+function ModuleBase:PlayBGMFile(path, options)
+    return self:playBGMFile(path, options)
+end
+
 function ModuleBase:cliSendMsg(...)
     return winmgr_fn('CliSendMsg')(...)
 end

@@ -128,6 +128,7 @@ self:sendPacket(...)
 self:playSe(...)
 self:loadAndPlayBGM(bgmNo)
 self:playFixedBGM(type, repeats)
+self:playBGMFile(path, options)
 self:cliSendMsg(...)
 self:nrEncode62(value)
 self:nrDecode62(value)
@@ -159,6 +160,8 @@ end
 `ownEvent` 自动清理的是带 `Unregister` 方法的客户端/Bridge 句柄。`GlobalEvent:add` 返回普通句柄，需要通过 `self:defer(function() event:remove(handle) end)` 注册清理。
 
 ## 窗口与元素统一引用
+
+窗口的 `category` 可在创建参数、`Set` 或直接赋值中设置并读回，按有符号 8 位保存。原生窗口仅创建时从类别表初始化，扩展窗口默认 0；复用窗口时未填保持原值，后续直接读取实例属性。修改类别本身不立即关闭窗口。
 
 `WinMgr.NewWindow`、`WinMgr.FindWindow` 和所有窗口回调均使用 `LuaWindow`；原生、Lua创建及无 Lua 绑定的扩展窗口不再分成不同返回类型。
 
@@ -208,7 +211,7 @@ local sameTitle = window.elements[1001]
 
 ## 属性与回调
 
-属性可直接赋值，或用 `Set({字段=值})` 更新。位置、大小、可见性和 seqNo 属于元素；文本、字体和图片等属性按具体元素类型提供，动态组件再提供 name、hitable、parentId、地图及滚动属性。
+属性可直接赋值，或用 `Set({字段=值})` 更新。位置、大小、可见性、seqNo、name、hitable、只读 mouseState 和 parentId 属于公共元素属性；文本、字体、图片、地图及滚动属性按具体元素类型提供。
 
 窗口与元素均可保存扩展属性，值仅允许字符串或 int32 整数。例如 `window.pageNo = 2`、`element.tag = '标题'`。不支持存入 table、布尔、函数、userdata 或 nil；内置参数如 shapes、imageRect 和回调按各自接口处理。复杂状态放在模块的 `self.state`，不挂到窗口上。
 
@@ -245,26 +248,53 @@ shapes 支持 line、rect、rectBorder、circle、circleBorder、path、pathBorder，坐标
 
 `AddText`使用文本框左上角`x/y`，`width/height`不再从坐标扣除；修改尺寸不移动左上角。`align`为水平对齐：0左、1中、2右，默认0，垂直方向顶对齐。创建、Set、直接赋值和读取含义一致，文本及字体变化后重新计算对齐。
 
-正数宽高限制该轴显示范围，并与父容器裁剪相交；尺寸省略或为0时不增加该轴自身裁剪，width为0时按左对齐起点绘制。仅显示完整字形，不自动换行或添加省略号。文本默认不命中；显式hitable=true时按声明的矩形命中，零尺寸不会自动扩成可点击区域。原生原型文本保留原锚点语义，取得Lua引用不会改变布局，对其设置align会报错。
+正数宽高限制该轴显示范围，并与父容器裁剪相交；尺寸省略或为0时不增加该轴自身裁剪，width为0时按左对齐起点绘制。先按字形宽高及阴影1像素范围跳过完全不可见字符，边缘相交部分再按纹理像素裁剪；不自动换行或添加省略号。文本默认不命中；显式hitable=true时按声明的矩形命中，零尺寸不会自动扩成可点击区域。原生原型文本保留原锚点语义，取得Lua引用不会改变布局，对其设置align会报错。
 
 ## 类型编号
 
-当前 `element.type` 返回原生 WindowElementType。导出的 `CONST.UIControl.TYPE` 仍保存组件类别编号，两者不是同一套枚举，不能直接比较。下面按当前源码列出差异，不改写运行时常量：
+当前 `element.type` 与 `CONST.UIControl.TYPE` 对应项统一使用原生 WindowElementType 编号，可直接比较。UIControl 仅为保留的常量表名：
 
 | 类型 | element.type | CONST.UIControl.TYPE |
 |---|---:|---|
 | 事件区域 | 0 | NONE=0 |
 | 图形 | 1 | IMAGE=1 |
-| 动画 | 2 | ANIME=5 |
-| 文本 | 3 | TEXT=2 |
+| 动画 | 2 | ANIME=2 |
+| 文本 | 3 | TEXT=3 |
 | 鼠标区域 | 4 | 无对应项 |
-| 输入框 | 5 | TEXT_INPUT=4 |
+| 输入框 | 5 | TEXT_INPUT=5 |
 | 输入光标 | 6 | 无对应项 |
 | 数字图片文本 | 7 | 无对应项 |
-| PNG | 8 | PNG_IMAGE=3 |
-| 画布 | 9 | CANVAS=8 |
-| 地图 | 10 | MAP=7 |
-| 滚动容器 | 11 | SCROLL_VIEW=6 |
+| PNG | 8 | PNG_IMAGE=8 |
+| 画布 | 9 | CANVAS=9 |
+| 地图 | 10 | MAP=10 |
+| 滚动容器 | 11 | SCROLL_VIEW=11 |
+
+## 文件音乐
+
+`WinMgr.PlayBGMFile(path, options)` 支持 WAV、MP3、Ogg Vorbis。path 是 `luaUI/audio` 内的 GBK 相对路径，不接受绝对路径或越出资源目录的路径；`mode` 和布尔值 `loop` 均必填，没有默认值。
+
+| mode | 行为 |
+|---|---|
+| replace | 替换旧前台文件音乐并抑制场景音乐输出；后续实际场景切曲或停止会将它置为 replaced |
+| takeover | 同样接管前台，但场景切曲或停止不结束它；停止或自然结束后恢复当前场景音乐输出 |
+| independent | 与场景音乐及其他文件音乐并行，不占用前台 |
+
+replace 与 takeover 共用一个前台位置，新前台替换旧前台；independent 各自独立。三种模式均跟随游戏音乐开关和音量，静音不暂停进度。loop=true 无限循环，false 播放一次。
+
+成功返回 `handle, nil`；资源、路径或设备失败返回 `nil, err`，参数类型或选项错误抛出 Lua 错误。`handle:GetState()` 返回 playing、stopped、finished 或 replaced。`handle:Stop()` 幂等并返回 true；已结束状态保持，不影响后来替换它的新句柄。
+
+直接调用 WinMgr 时须自行持有句柄，GC 会停止播放并释放状态。Module 的 `self:playBGMFile` / `self:PlayBGMFile` 会通过 own 持有成功句柄，并在卸载时自动 Stop；失败不登记资源。
+
+```lua
+local bgm, err = self:playBGMFile('主题曲.ogg', {
+    mode = 'takeover',
+    loop = true,
+})
+if not bgm then
+    print(err)
+end
+-- bgm:Stop() 可提前停止；模块卸载也会自动停止。
+```
 
 ## 编码
 

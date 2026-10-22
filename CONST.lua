@@ -1,9 +1,14 @@
+-- 类型编号与客户端 WindowElementType 及 element.type 一致；UIControl 为保留的常量表名。
 ---@class CONST_UIControl_TYPE
 ---@field NONE integer @0
 ---@field IMAGE integer @1
----@field TEXT integer @2
----@field PNG_IMAGE integer @3
----@field TEXT_INPUT integer @4
+---@field TEXT integer @3
+---@field PNG_IMAGE integer @8
+---@field TEXT_INPUT integer @5
+---@field ANIME integer @2
+---@field SCROLL_VIEW integer @11
+---@field MAP integer @10
+---@field CANVAS integer @9
 
 ---@class CONST_UIControl_MOUSE_STATE
 ---@field NONE integer @0
@@ -23,6 +28,7 @@
 ---@field R_HOLD_PHYSICAL integer @0x10
 ---@field DRAGGING integer @0x20
 ---@field DRAG_FINISH integer @0x40
+---@field LEAVE integer @0x80
 ---@field L_DBL_CLICK_EVENT integer @0x100
 ---@field R_DBL_CLICK_EVENT integer @0x200
 ---@field L_REPEAT_DOWN integer @0x400
@@ -52,9 +58,13 @@ CONST.UIControl = CONST.UIControl or {}
 CONST.UIControl.TYPE = CONST.UIControl.TYPE or {
     NONE = 0,
     IMAGE = 1,
-    TEXT = 2,
-    PNG_IMAGE = 3,
-    TEXT_INPUT = 4,
+    TEXT = 3,
+    PNG_IMAGE = 8,
+    TEXT_INPUT = 5,
+    ANIME = 2,
+    SCROLL_VIEW = 11,
+    MAP = 10,
+    CANVAS = 9,
 }
 
 CONST.UIControl.MOUSE_STATE = CONST.UIControl.MOUSE_STATE or {
@@ -72,6 +82,7 @@ CONST.MouseFlags = CONST.MouseFlags or {
     R_HOLD_PHYSICAL = 0x10,
     DRAGGING = 0x20,
     DRAG_FINISH = 0x40,
+    LEAVE = 0x80,
     L_DBL_CLICK_EVENT = 0x100,
     R_DBL_CLICK_EVENT = 0x200,
     L_REPEAT_DOWN = 0x400,

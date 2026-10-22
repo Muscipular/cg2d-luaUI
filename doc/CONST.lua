@@ -1,15 +1,14 @@
--- 此表是组件类别编号；当前 LuaControl.type 返回原生元素类型，不能直接与此表比较。
--- 原生元素类型数值及区别见 README.md 的“类型编号”章节。
+-- 类型编号与客户端 WindowElementType 及 element.type 一致；UIControl 为保留的常量表名。
 ---@class CONST_UIControl_TYPE
 ---@field NONE integer @0
 ---@field IMAGE integer @1
----@field TEXT integer @2
----@field PNG_IMAGE integer @3
----@field TEXT_INPUT integer @4
----@field ANIME integer @5
----@field SCROLL_VIEW integer @6
----@field MAP integer @7
----@field CANVAS integer @8
+---@field TEXT integer @3
+---@field PNG_IMAGE integer @8
+---@field TEXT_INPUT integer @5
+---@field ANIME integer @2
+---@field SCROLL_VIEW integer @11
+---@field MAP integer @10
+---@field CANVAS integer @9
 
 ---@class CONST_UIControl_MOUSE_STATE
 ---@field NONE integer @0
@@ -70,13 +69,13 @@ CONST.UIControl = CONST.UIControl or {}
 CONST.UIControl.TYPE = CONST.UIControl.TYPE or {
     NONE = 0,
     IMAGE = 1,
-    TEXT = 2,
-    PNG_IMAGE = 3,
-    TEXT_INPUT = 4,
-    ANIME = 5,
-    SCROLL_VIEW = 6,
-    MAP = 7,
-    CANVAS = 8,
+    TEXT = 3,
+    PNG_IMAGE = 8,
+    TEXT_INPUT = 5,
+    ANIME = 2,
+    SCROLL_VIEW = 11,
+    MAP = 10,
+    CANVAS = 9,
 }
 
 CONST.UIControl.MOUSE_STATE = CONST.UIControl.MOUSE_STATE or {

@@ -5,7 +5,7 @@
 -- 内置回调接受 function / nil；用对象.onXXX = nil 清除，Set({onXXX=nil}) 无法传递该字段。
 
 ---@alias LuaElementIdParam integer|string|nil @整数范围 0..4294967295；字符串只允许空字符串
----@alias LuaElementType integer @原生 WindowElementType 编号，见 README.md；不同于 CONST.UIControl.TYPE
+---@alias LuaElementType integer @原生 WindowElementType 编号，与 CONST.UIControl.TYPE 对应项一致，见 README.md
 
 ---@class LuaElementCollection
 ---@field [integer] LuaControl|nil @按 elementId 查找，不是连续数组；缺失返回 nil
@@ -15,7 +15,8 @@
 ---@field valid boolean @窗口引用是否仍有效
 ---@field id integer @窗口 ID
 ---@field winId integer @窗口 ID，同 id
----@field state integer @窗口状态
+---@field state integer @只读窗口状态
+---@field category integer @窗口类别，按有符号 8 位保存；支持读取、Set 和直接赋值
 ---@field visible boolean @窗口是否可见
 ---@field count integer @只读；全部有效元素数量，包含容器子孙
 ---@field elements LuaElementCollection @只读集合引用；通过 elements[elementId] 访问控件
@@ -37,19 +38,19 @@
 ---@field id integer|nil @只读；elementId 别名，不是数组下标或图号
 ---@field controlId integer|nil @只读；elementId 别名
 ---@field seqNo integer @排序主键；小值先处理，同值按 elementId；赋值自动通知重排
----@field name string|nil @动态组件名称
+---@field name string @元素名称
 ---@field x integer
 ---@field y integer
 ---@field width integer
 ---@field height integer
 ---@field visible boolean
 ---@field type LuaElementType @只读；原生元素类型编号
----@field mouseState integer|nil @动态组件只读鼠标状态，见 CONST.UIControl.MOUSE_STATE
----@field hitable boolean|nil @动态组件是否响应命中
----@field parentId integer|nil @动态组件只读父 ScrollView 的 elementId；0 表示直属窗口
+---@field mouseState integer @只读鼠标状态，见 CONST.UIControl.MOUSE_STATE
+---@field hitable boolean @元素是否响应命中
+---@field parentId integer @只读父 ScrollView 的 elementId；0 表示直属窗口
 ---@field image integer|string|nil @图片控件返回图号，PNG 图片控件返回路径
----@field imageHover integer|string|nil @动态图片组件为图号，PNG 图片为路径
----@field imagePress integer|string|nil @动态图片组件为图号，PNG 图片为路径
+---@field imageHover integer|string|nil @图片控件为图号，PNG 图片为路径
+---@field imagePress integer|string|nil @图片控件为图号，PNG 图片为路径
 ---@field imageRect LuaPngRect|nil @仅 PNG 图片控件
 ---@field imageHoverRect LuaPngRect|nil @仅 PNG 图片控件
 ---@field imagePressRect LuaPngRect|nil @仅 PNG 图片控件
@@ -121,6 +122,7 @@ function LuaEventHandle:Unregister() end
 ---@field width integer
 ---@field height integer
 ---@field layer integer|nil @新建默认 4；复用窗口时可更新
+---@field category integer|nil @新建扩展窗口默认 0；复用时未填保持原值，按有符号 8 位保存
 ---@field visible boolean|nil @默认 true；false 时创建隐藏窗口
 ---@field dragMove integer|nil @默认 0；1 时允许窗口空白区域左键拖动
 ---@field update LuaWindowCallback|nil
@@ -300,6 +302,7 @@ function LuaEventHandle:Unregister() end
 ---@field onEnter LuaUITextEvent|nil
 
 ---@class LuaWindowSetParam
+---@field category integer|nil @未填保持原值；按有符号 8 位保存，赋值本身不立即关闭窗口
 ---@field x integer|nil
 ---@field y integer|nil
 ---@field width integer|nil
@@ -339,7 +342,8 @@ function LuaWindow:AddPngImage(param) end
 function LuaWindow:AddCanvas(param) end
 
 -- 创建、Set、直接赋值和读取使用相同文本框几何；尺寸变化不移动左上角。
--- 裁剪与父容器相交，仅显示完整字形；不自动换行或添加省略号。文本默认hitable=false。
+-- 裁剪与父容器相交；先按字形宽高及阴影范围剔除完全不可见字符，再按纹理裁剪相交部分。
+-- 不自动换行或添加省略号。文本默认hitable=false，align默认0（左对齐）。
 ---@param param LuaTextParam
 ---@return LuaControl|nil control
 function LuaWindow:AddText(param) end
@@ -516,6 +520,33 @@ function WinMgr.LoadAndPlayBGM(bgmNo) end
 ---@param repeats integer @重复次数，传给原客户端
 ---@return integer result @1 成功，非 1 失败
 function WinMgr.PlayFixedBGM(type, repeats) end
+
+---@alias LuaBGMMode 'replace'|'takeover'|'independent'
+---@alias LuaBGMState 'playing'|'stopped'|'finished'|'replaced'
+
+---@class LuaBGMFileOptions
+---@field mode LuaBGMMode @必填；replace/takeover 共用前台，independent 独立混音
+---@field loop boolean @必填；true 无限循环，false 播放一次
+
+---文件音乐稳定句柄；GC 停止播放并释放状态，直接调用 WinMgr 时需自行持有。
+---@class LuaBGMHandle
+
+---幂等停止当前句柄；不会停止后续替换它的新句柄，已结束状态保持不变。
+---@return boolean success @true
+function LuaBGMHandle:Stop() end
+
+---@return LuaBGMState state @playing 播放中；stopped 已停止；finished 自然结束；replaced 被替换
+function LuaBGMHandle:GetState() end
+
+---播放 WAV、MP3 或 Ogg Vorbis；跟随游戏音乐开关与音量，静音时播放进度继续。
+---replace/takeover 抑制场景音乐输出并替换旧前台文件音乐；结束时恢复当前场景音乐输出。
+---replace 会被后续实际场景切曲/停止替换；takeover 保持接管。independent 与场景及其他文件音乐并行。
+---参数类型、mode 或 loop 错误抛出 Lua 错误；路径、资源或设备失败返回 nil, err。
+---@param path string @luaUI/audio 内的 GBK 相对路径；不接受绝对路径或越出该目录的路径
+---@param options LuaBGMFileOptions
+---@return LuaBGMHandle|nil handle @成功返回句柄
+---@return string|nil err @成功为 nil；失败为错误说明
+function WinMgr.PlayBGMFile(path, options) end
 
 ---@param msg string
 function WinMgr.CliSendMsg(msg) end
